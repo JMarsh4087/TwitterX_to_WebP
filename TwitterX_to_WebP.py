@@ -331,7 +331,31 @@ class TwitterArchiver:
             articles = page.locator('article[data-testid="tweet"]').all()
 
             if len(articles) == 0:
-                print("   ⚠ No tweets found - may need login or page structure changed")
+                print("   ⚠ No tweets found - debugging page state...")
+
+                # Check if we're actually on the profile page
+                current_url = page.url
+                print(f"   📍 Current URL: {current_url}")
+
+                # Check if there's a login wall
+                if page.locator('text="Sign in"').count() > 0 or page.locator('text="Log in"').count() > 0:
+                    print("   🚫 Login wall detected - session may have expired")
+
+                # Check if profile exists
+                if page.locator('text="This account doesn\'t exist"').count() > 0:
+                    print("   ❌ Account doesn't exist")
+
+                if page.locator('text="Account suspended"').count() > 0:
+                    print("   ⛔ Account is suspended")
+
+                # Try alternative selectors
+                alt_articles = page.locator('article').all()
+                print(f"   🔍 Found {len(alt_articles)} generic <article> elements")
+
+                # Check if page loaded at all
+                body_text = page.locator('body').inner_text()[:200]
+                print(f"   📄 Page content preview: {body_text[:100]}...")
+
                 return
 
             print(f"   Found {len(articles)} items on timeline")
@@ -555,9 +579,19 @@ class TwitterArchiver:
 
             try:
                 iteration = 0
+                last_checked_user = None  # Track the last user we checked
+
                 while True:
-                    # Randomly select a user to check
-                    username = random.choice(self.target_usernames)
+                    # Randomly select a user to check (but not the same as last time)
+                    if len(self.target_usernames) > 1:
+                        # If we have multiple users, avoid repeating
+                        available_users = [u for u in self.target_usernames if u != last_checked_user]
+                        username = random.choice(available_users)
+                    else:
+                        # Only one user, can't avoid repeating
+                        username = self.target_usernames[0]
+
+                    last_checked_user = username  # Remember for next iteration
 
                     print(f"\n{'='*60}")
                     print(f"Iteration #{iteration + 1}")
@@ -632,4 +666,3 @@ if __name__ == "__main__":
         use_session=config.get("use_saved_session", True),
         session_file=config.get("session_file", "twitter_session.json")
     )
-
