@@ -1,0 +1,11 @@
+{
+  "storage_path": "path//to//save//snapshots",
+  "target_usernames": ["elonmusk", "User2", "User3"],
+  "twitter_login": {
+    "username": "yourusername",
+    "password": "yourpassword"
+  },
+  "check_interval_seconds": 240,
+  "headless": false,
+  "use_saved_session": true
+}
