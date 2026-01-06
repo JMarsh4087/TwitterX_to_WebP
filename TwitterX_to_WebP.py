@@ -574,9 +574,13 @@ class TwitterArchiver:
                         self.check_interval_variance
                     )
 
-                    print(f"\n⏳ Next check in {wait_time}s...")
-                    iteration += 1
-                    time.sleep(wait_time)
+                    iteration = 0
+
+                    while wait_time > 0:
+                        print(f"\n⏳ Next check in {wait_time}s...")
+                        time.sleep(30)  # Sleep for 30 seconds
+                        wait_time -= 30  # Decrease the wait time by 30 seconds
+                        iteration += 1
 
             except KeyboardInterrupt:
                 print("\n\n🛑 Stopping archiver...")
@@ -628,3 +632,4 @@ if __name__ == "__main__":
         use_session=config.get("use_saved_session", True),
         session_file=config.get("session_file", "twitter_session.json")
     )
+
